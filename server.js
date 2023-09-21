@@ -49,7 +49,7 @@ const mainMenuQuestion = [
 
 function init() {
     inquirer.prompt(mainMenuQuestion)
-    .then((answer)=>{
+    .then((answer) => {
         switch (answer.menu) {
             case 'View All Employees':
                 break;
@@ -72,4 +72,60 @@ function init() {
     })
 }
 
-init();
+// Connecting 
+const express = require('express');
+const mysql = require('mysql2');
+
+const PORT = process.env.PORT || 3001;
+const app = express();
+
+app.use(express.urlencoded({ extended: false}));
+app.use(express.json());
+
+const db = mysql.createConnection(
+    { 
+        host: 'localhost',
+        user: 'root',
+        password: 'vanderbilt',
+        database: 'employee_info_db'
+    },
+    console.log(`Connected to employee_info_db database.`)
+);
+app.get('/department', (req,res) => { 
+db.query('Select * From department', (err, results) => {
+    if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error'});
+        return;
+    }
+    res.json(results);
+});
+});
+
+app.get('/role', (req,res) => { 
+    db.query('Select * From role', (err, results) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal server error'});
+            return;
+        }
+        res.json(results);
+    });
+    });
+
+    app.get('/employee', (req,res) => { 
+        db.query('Select * From employee', (err, results) => {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ error: 'Internal server error'});
+                return;
+            }
+            res.json(results);
+        });
+        });
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+
+    init();
+});
